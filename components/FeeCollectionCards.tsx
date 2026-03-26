@@ -201,19 +201,19 @@ export function FeeCollectionCards() {
   return (
     <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
       {/* Tuition Fees Collected Card */}
-      <Card>
+      <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white border-0 shadow-lg">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Tuition Fees Collected (Current Month Only)</CardTitle>
-          <DollarSign className="h-4 w-4 text-blue-600" />
+          <CardTitle className="text-sm font-medium text-white">Tuition Fees Collected (Current Month Only)</CardTitle>
+          <DollarSign className="h-4 w-4 text-white/80" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-blue-800">
+          <div className="text-2xl font-bold text-white">
             ${currentMonthTuitionFees.toLocaleString(undefined, {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })}
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-white/80">
             {currentMonthName}
           </p>
         </CardContent>
