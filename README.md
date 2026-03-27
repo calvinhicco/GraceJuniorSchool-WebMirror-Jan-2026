@@ -1,4 +1,4 @@
-# My Students Web Mirror
+# My Students Track
 
 A web-based mirror application for the My Students Track school management system.
 
