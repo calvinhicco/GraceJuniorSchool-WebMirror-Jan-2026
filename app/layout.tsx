@@ -7,8 +7,8 @@ import { Nav } from '@/components/Nav'
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 export const metadata: Metadata = {
-  title: 'My Students - Sunrise Group Of Schools Real-Time update',
-  description: 'Sunrise Group Of Schools Real-Time update — synced from the desktop app. Editing is disabled.',
+  title: 'My Students - Grace Junior School Real-Time update',
+  description: 'Grace Junior School Real-Time update — synced from the desktop app. Editing is disabled.',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -17,7 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${inter.variable} font-sans antialiased`}>
         <TooltipProvider>
           <div className="w-full bg-brand-gradient text-white text-sm py-2.5 text-center font-medium shadow-sm">
-            Sunrise Group Of Schools Real-Time update — synced from the desktop app. Editing is disabled.
+            Grace Junior School Real-Time update — synced from the desktop app. Editing is disabled.
           </div>
           <Nav />
           <main className="min-h-screen bg-background">
