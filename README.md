@@ -19,7 +19,7 @@ Read-only web mirror for **Grace Junior School** (My Students Track desktop app)
 
 - **Frontend**: Next.js 14, React 18, TypeScript
 - **Styling**: Tailwind CSS, shadcn/ui components
-- **Database**: Firebase Firestore (`my-students-track-staff-online`)
+- **Database**: Firebase Firestore (`jan-2026-webmirror-a1`)
 - **Deployment**: Vercel
 - **Real-time**: Firestore `onSnapshot` subscriptions
 
@@ -29,7 +29,7 @@ Read-only web mirror for **Grace Junior School** (My Students Track desktop app)
 
 - Node.js 18+ 
 - npm or yarn
-- Firebase project ([my-students-track-staff-online](https://console.firebase.google.com/project/my-students-track-staff-online))
+- Firebase project ([jan-2026-webmirror-a1](https://console.firebase.google.com/project/jan-2026-webmirror-a1))
 - Vercel account (for deployment)
 
 ### Installation
@@ -53,9 +53,9 @@ cp .env.example .env.local
 4. Configure your `.env.local` (copy from `.env.example`):
 ```env
 NEXT_PUBLIC_FIREBASE_API_KEY=...
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=my-students-track-staff-online.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=my-students-track-staff-online
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=my-students-track-staff-online.firebasestorage.app
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=jan-2026-webmirror-a1.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=jan-2026-webmirror-a1
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=jan-2026-webmirror-a1.firebasestorage.app
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
 NEXT_PUBLIC_FIREBASE_APP_ID=...
 ```
@@ -73,17 +73,15 @@ Deploy on Vercel from this repo: [GraceJuniorSchool-WebMirror-Jan-2026](https://
 
 ### Environment Variables (Vercel)
 
-Set all `NEXT_PUBLIC_FIREBASE_*` values from `.env.example` for project **my-students-track-staff-online**.
+Set all `NEXT_PUBLIC_FIREBASE_*` values from `.env.example` for project **jan-2026-webmirror-a1** (must match the desktop app `firebase-service-account.json`).
 
-Do **not** use Madam Boss Firebase (`my-students-mirror`) on this project — you will see the wrong school's data.
-
-Redeploy after saving env vars. The site footer must show `Firestore: my-students-track-staff-online`.
+Redeploy after saving env vars. The site footer must show `Firestore: jan-2026-webmirror-a1`.
 
 ### Wrong school data?
 
 | Repo | Firebase project | School |
 |------|------------------|--------|
-| [GraceJuniorSchool-WebMirror-Jan-2026](https://github.com/calvinhicco/GraceJuniorSchool-WebMirror-Jan-2026) | `my-students-track-staff-online` | Grace Junior School |
+| [GraceJuniorSchool-WebMirror-Jan-2026](https://github.com/calvinhicco/GraceJuniorSchool-WebMirror-Jan-2026) | `jan-2026-webmirror-a1` | Grace Junior School |
 | [Madam-Boss-Kids-Corner-MTS-Web-Mirror](https://github.com/calvinhicco/Madam-Boss-Kids-Corner-MTS-Web-Mirror) | `my-students-mirror` | Madam Boss Kids Corner |
 
 ### Firestore security rules

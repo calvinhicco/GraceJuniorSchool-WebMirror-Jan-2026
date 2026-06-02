@@ -11,17 +11,17 @@ function envVar(name: string, fallback: string): string {
 // Firebase configuration — Grace Junior School desktop app sync project.
 // In Vercel: one variable per row, value only (no quotes, no trailing commas).
 const firebaseConfig = {
-  apiKey: envVar('NEXT_PUBLIC_FIREBASE_API_KEY', 'AIzaSyBBXWOD7XiXbM7NLUVprZTMD-Mrd5CVWMI'),
-  authDomain: envVar('NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN', 'my-students-track-staff-online.firebaseapp.com'),
-  projectId: envVar('NEXT_PUBLIC_FIREBASE_PROJECT_ID', 'my-students-track-staff-online'),
-  storageBucket: envVar('NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET', 'my-students-track-staff-online.firebasestorage.app'),
-  messagingSenderId: envVar('NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID', '324328206893'),
-  appId: envVar('NEXT_PUBLIC_FIREBASE_APP_ID', '1:324328206893:web:695d726cd2d680bfaa7ea4'),
+  apiKey: envVar('NEXT_PUBLIC_FIREBASE_API_KEY', 'AIzaSyBd20WWDh_uXn94JNUBbjenXJWmuVLf23U'),
+  authDomain: envVar('NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN', 'jan-2026-webmirror-a1.firebaseapp.com'),
+  projectId: envVar('NEXT_PUBLIC_FIREBASE_PROJECT_ID', 'jan-2026-webmirror-a1'),
+  storageBucket: envVar('NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET', 'jan-2026-webmirror-a1.firebasestorage.app'),
+  messagingSenderId: envVar('NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID', '1065081043628'),
+  appId: envVar('NEXT_PUBLIC_FIREBASE_APP_ID', '1:1065081043628:web:c688bc05d45bc78275fd09'),
 }
 
 export const firebaseProjectId = firebaseConfig.projectId
 /** Must match Vercel env / desktop sync project for this school. */
-export const expectedFirebaseProjectId = 'my-students-track-staff-online'
+export const expectedFirebaseProjectId = 'jan-2026-webmirror-a1'
 export const firebaseSchoolLabel = 'Grace Junior School'
 
 // Initialize Firebase
@@ -103,7 +103,7 @@ export async function getInitial<T>(collectionName: string, forceFresh = false):
     if (code === 'permission-denied') {
       console.error(
         `❌ Firestore permission denied for "${collectionName}". ` +
-          'Publish read rules in Firebase Console (see firestore.rules.example) and confirm Vercel uses project my-students-track-staff-online.'
+          'Publish read rules in Firebase Console (see firestore.rules.example) and confirm Vercel uses project jan-2026-webmirror-a1.'
       )
     } else {
       console.error(`❌ Error fetching ${collectionName}:`, error)
