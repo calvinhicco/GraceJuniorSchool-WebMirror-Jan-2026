@@ -3,6 +3,8 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { Nav } from '@/components/Nav'
+import { FirebaseConnectionBanner } from '@/components/FirebaseConnectionBanner'
+import { FirebaseProjectFooter } from '@/components/FirebaseProjectFooter'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
@@ -20,8 +22,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             Grace Junior School Real-Time update — synced from the desktop app. Editing is disabled.
           </div>
           <Nav />
+          <FirebaseConnectionBanner />
           <main className="min-h-screen bg-background">
             {children}
+            <FirebaseProjectFooter />
           </main>
         </TooltipProvider>
       </body>

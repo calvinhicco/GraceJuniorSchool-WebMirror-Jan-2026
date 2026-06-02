@@ -1,15 +1,28 @@
 import { initializeApp } from 'firebase/app'
-import { getFirestore, collection, onSnapshot, doc, getDocs, query, orderBy, enableNetwork, disableNetwork, clearIndexedDbPersistence } from 'firebase/firestore'
+import { getFirestore, collection, onSnapshot, doc, getDocs, query, enableNetwork, disableNetwork, clearIndexedDbPersistence } from 'firebase/firestore'
 
-// Firebase configuration - matches the Electron app's Firebase project
-const firebaseConfig = {
-  apiKey: "AIzaSyBBXWOD7XiXbM7NLUVprZTMD-Mrd5CVWMI",
-  authDomain: "my-students-track-staff-online.firebaseapp.com",
-  projectId: "my-students-track-staff-online",
-  storageBucket: "my-students-track-staff-online.firebasestorage.app",
-  messagingSenderId: "324328206893",
-  appId: "1:324328206893:web:695d726cd2d680bfaa7ea4"
+/** Strip quotes/commas often pasted from .env files into Vercel env values. */
+function envVar(name: string, fallback: string): string {
+  const raw = process.env[name]
+  if (!raw) return fallback
+  return raw.replace(/^["'\s]+|["',\s]+$/g, '')
 }
+
+// Firebase configuration — Grace Junior School desktop app sync project.
+// In Vercel: one variable per row, value only (no quotes, no trailing commas).
+const firebaseConfig = {
+  apiKey: envVar('NEXT_PUBLIC_FIREBASE_API_KEY', 'AIzaSyBBXWOD7XiXbM7NLUVprZTMD-Mrd5CVWMI'),
+  authDomain: envVar('NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN', 'my-students-track-staff-online.firebaseapp.com'),
+  projectId: envVar('NEXT_PUBLIC_FIREBASE_PROJECT_ID', 'my-students-track-staff-online'),
+  storageBucket: envVar('NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET', 'my-students-track-staff-online.firebasestorage.app'),
+  messagingSenderId: envVar('NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID', '324328206893'),
+  appId: envVar('NEXT_PUBLIC_FIREBASE_APP_ID', '1:324328206893:web:695d726cd2d680bfaa7ea4'),
+}
+
+export const firebaseProjectId = firebaseConfig.projectId
+/** Must match Vercel env / desktop sync project for this school. */
+export const expectedFirebaseProjectId = 'my-students-track-staff-online'
+export const firebaseSchoolLabel = 'Grace Junior School'
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig)
@@ -85,8 +98,16 @@ export async function getInitial<T>(collectionName: string, forceFresh = false):
     console.log(`📊 Fetched ${data.length} items from ${collectionName}${forceFresh ? ' (refreshed)' : ''}`)
     
     return data
-  } catch (error) {
-    console.error(`❌ Error fetching ${collectionName}:`, error)
+  } catch (error: unknown) {
+    const code = (error as { code?: string })?.code
+    if (code === 'permission-denied') {
+      console.error(
+        `❌ Firestore permission denied for "${collectionName}". ` +
+          'Publish read rules in Firebase Console (see firestore.rules.example) and confirm Vercel uses project my-students-track-staff-online.'
+      )
+    } else {
+      console.error(`❌ Error fetching ${collectionName}:`, error)
+    }
     return []
   }
 }

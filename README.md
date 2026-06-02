@@ -1,6 +1,6 @@
-# My Students Track
+# Grace Junior School — Web Mirror
 
-A web-based mirror application for the My Students Track school management system.
+Read-only web mirror for **Grace Junior School** (My Students Track desktop app).
 
 ## Deployment Status
 - Last updated: September 12, 2025, featuring real-time data synchronization and comprehensive staff log management.
@@ -19,10 +19,9 @@ A web-based mirror application for the My Students Track school management syste
 
 - **Frontend**: Next.js 14, React 18, TypeScript
 - **Styling**: Tailwind CSS, shadcn/ui components
-- **Database**: Supabase (PostgreSQL)
-- **Authentication**: Supabase Auth
+- **Database**: Firebase Firestore (`my-students-track-staff-online`)
 - **Deployment**: Vercel
-- **Real-time**: Supabase Realtime subscriptions
+- **Real-time**: Firestore `onSnapshot` subscriptions
 
 ## Getting Started
 
@@ -30,7 +29,7 @@ A web-based mirror application for the My Students Track school management syste
 
 - Node.js 18+ 
 - npm or yarn
-- Supabase account
+- Firebase project ([my-students-track-staff-online](https://console.firebase.google.com/project/my-students-track-staff-online))
 - Vercel account (for deployment)
 
 ### Installation
@@ -51,10 +50,14 @@ npm install
 cp .env.example .env.local
 ```
 
-4. Configure your `.env.local`:
+4. Configure your `.env.local` (copy from `.env.example`):
 ```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_FIREBASE_API_KEY=...
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=my-students-track-staff-online.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=my-students-track-staff-online
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=my-students-track-staff-online.firebasestorage.app
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
+NEXT_PUBLIC_FIREBASE_APP_ID=...
 ```
 
 5. Run the development server:
@@ -66,13 +69,26 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 
 ## Deployment
 
-This application is configured for deployment on Vercel with Supabase as the backend.
+Deploy on Vercel from this repo: [GraceJuniorSchool-WebMirror-Jan-2026](https://github.com/calvinhicco/GraceJuniorSchool-WebMirror-Jan-2026).
 
-### Environment Variables
+### Environment Variables (Vercel)
 
-Set these in your Vercel dashboard:
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+Set all `NEXT_PUBLIC_FIREBASE_*` values from `.env.example` for project **my-students-track-staff-online**.
+
+Do **not** use Madam Boss Firebase (`my-students-mirror`) on this project — you will see the wrong school's data.
+
+Redeploy after saving env vars. The site footer must show `Firestore: my-students-track-staff-online`.
+
+### Wrong school data?
+
+| Repo | Firebase project | School |
+|------|------------------|--------|
+| [GraceJuniorSchool-WebMirror-Jan-2026](https://github.com/calvinhicco/GraceJuniorSchool-WebMirror-Jan-2026) | `my-students-track-staff-online` | Grace Junior School |
+| [Madam-Boss-Kids-Corner-MTS-Web-Mirror](https://github.com/calvinhicco/Madam-Boss-Kids-Corner-MTS-Web-Mirror) | `my-students-mirror` | Madam Boss Kids Corner |
+
+### Firestore security rules
+
+Allow browser **read** on sync collections (see `firestore.rules.example`).
 
 ## Project Structure
 
@@ -97,4 +113,4 @@ This is a read-only mirror application. All data modifications should be done th
 
 ## License
 
-Private - Madam Boss Kids Corner School Management System
+Private - Grace Junior School
