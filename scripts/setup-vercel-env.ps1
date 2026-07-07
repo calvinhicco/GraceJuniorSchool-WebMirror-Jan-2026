@@ -22,7 +22,6 @@ Write-Host "Project ID must be: jan-2026-webmirror-a1" -ForegroundColor Yellow
 foreach ($name in $vars.Keys) {
   foreach ($env in $environments) {
     Write-Host "  $name ($env)"
-    $value = $vars[$name]
     vercel env add $name $env --value $vars[$name] --yes --force 2>&1 | Out-Null
     if ($LASTEXITCODE -ne 0) {
       Write-Host "    (run manually: vercel env add $name $env)" -ForegroundColor DarkYellow

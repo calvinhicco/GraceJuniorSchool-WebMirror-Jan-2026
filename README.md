@@ -1,114 +1,50 @@
-# Grace Junior School — Web Mirror
+# Grace Junior School — Web Portals
 
-Read-only web mirror for **Grace Junior School** (My Students Track desktop app).
+Dual web portals for **Grace Junior School**, synced from the My Students Track desktop app.
 
-## Deployment Status
-- Last updated: September 12, 2025, featuring real-time data synchronization and comprehensive staff log management.
-- Git repository connected to Vercel - ready for deployment!
+- **Parent Portal** — view and download academic report cards (login with child name + student ID)
+- **School Mirror** — staff read-only view of students, fees, expenses, and outstanding balances
 
-## Features
-
-- **Dashboard Overview**: Real-time statistics and data visualization
-- **Student Management**: View student records and information
-- **Staff Log Sheet**: Daily attendance tracking with role-based grouping
-- **Expenses Tracking**: Financial records and expense management
-- **Extra Billing**: Additional billing and payment tracking
-- **Outstanding Records**: Overdue payments and follow-ups
-
-## Tech Stack
-
-- **Frontend**: Next.js 14, React 18, TypeScript
-- **Styling**: Tailwind CSS, shadcn/ui components
-- **Database**: Firebase Firestore (`jan-2026-webmirror-a1`)
-- **Deployment**: Vercel
-- **Real-time**: Firestore `onSnapshot` subscriptions
+Firebase project: **`jan-2026-webmirror-a1`** (must match the desktop app service account).
 
 ## Getting Started
 
-### Prerequisites
-
-- Node.js 18+ 
-- npm or yarn
-- Firebase project ([jan-2026-webmirror-a1](https://console.firebase.google.com/project/jan-2026-webmirror-a1))
-- Vercel account (for deployment)
-
-### Installation
-
-1. Clone the repository:
-```bash
-git clone <your-repo-url>
-cd web-mirror-with-staff-log
-```
-
-2. Install dependencies:
 ```bash
 npm install
-```
-
-3. Set up environment variables:
-```bash
 cp .env.example .env.local
-```
-
-4. Configure your `.env.local` (copy from `.env.example`):
-```env
-NEXT_PUBLIC_FIREBASE_API_KEY=...
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=jan-2026-webmirror-a1.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=jan-2026-webmirror-a1
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=jan-2026-webmirror-a1.firebasestorage.app
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
-NEXT_PUBLIC_FIREBASE_APP_ID=...
-```
-
-5. Run the development server:
-```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view the application.
+Open [http://localhost:3000](http://localhost:3000).
 
 ## Deployment
 
-Deploy on Vercel from this repo: [GraceJuniorSchool-WebMirror-Jan-2026](https://github.com/calvinhicco/GraceJuniorSchool-WebMirror-Jan-2026).
+GitHub: [calvinhicco/GraceJuniorSchool-WebMirror-Jan-2026](https://github.com/calvinhicco/GraceJuniorSchool-WebMirror-Jan-2026)
 
-### Environment Variables (Vercel)
+Deploy on Vercel. Set all `NEXT_PUBLIC_FIREBASE_*` values from `.env.example` for project **jan-2026-webmirror-a1**.
 
-Set all `NEXT_PUBLIC_FIREBASE_*` values from `.env.example` for project **jan-2026-webmirror-a1** (must match the desktop app `firebase-service-account.json`).
+Or run `scripts/setup-vercel-env.ps1` after `vercel link`.
 
-Redeploy after saving env vars. The site footer must show `Firestore: jan-2026-webmirror-a1`.
+The school mirror footer must show: `Firestore: jan-2026-webmirror-a1`.
 
-### Wrong school data?
+## Firestore security rules
 
-| Repo | Firebase project | School |
-|------|------------------|--------|
-| [GraceJuniorSchool-WebMirror-Jan-2026](https://github.com/calvinhicco/GraceJuniorSchool-WebMirror-Jan-2026) | `jan-2026-webmirror-a1` | Grace Junior School |
-| [Madam-Boss-Kids-Corner-MTS-Web-Mirror](https://github.com/calvinhicco/Madam-Boss-Kids-Corner-MTS-Web-Mirror) | `my-students-mirror` | Madam Boss Kids Corner |
+Allow browser **read** on sync collections (see `firestore.rules.example`), including academic report collections for the parent portal.
 
-### Firestore security rules
+## Routes
 
-Allow browser **read** on sync collections (see `firestore.rules.example`).
-
-## Project Structure
-
-```
-├── app/                    # Next.js app directory
-│   ├── staff/             # Staff log pages
-│   ├── students/          # Student management
-│   ├── expenses/          # Expense tracking
-│   └── layout.tsx         # Root layout
-├── components/            # Reusable components
-│   ├── ui/               # shadcn/ui components
-│   └── Nav.tsx           # Navigation component
-├── lib/                  # Utilities and configurations
-│   ├── supabase.ts      # Supabase client
-│   └── utils.ts         # Helper functions
-└── types/               # TypeScript type definitions
-```
-
-## Contributing
-
-This is a read-only mirror application. All data modifications should be done through the main desktop application.
+| URL | Purpose |
+|-----|---------|
+| `/` | Portal chooser |
+| `/parent` | Parent login |
+| `/parent/report` | Academic report viewer + PDF |
+| `/school/login` | School mirror staff login |
+| `/school` | Financial dashboard |
+| `/school/students` | Student list |
+| `/school/expenses` | Expenses |
+| `/school/extrabilling` | Extra billing |
+| `/school/outstanding` | Outstanding balances |
 
 ## License
 
-Private - Grace Junior School
+Private — Grace Junior School

@@ -10,5 +10,14 @@ service cloud.firestore {
     match /sales/{docId} { allow read: if true; allow write: if false; }
     match /salesUsers/{docId} { allow read: if true; allow write: if false; }
     match /aiReports/{docId} { allow read: if true; allow write: if false; }
+    match /academicStudentReports/{docId} { allow read: if true; allow write: if false; }
+    match /academicStudentSubjectResults/{docId} { allow read: if true; allow write: if false; }
+    match /academicReportCollections/{docId} { allow read: if true; allow write: if false; }
+    match /academicSchoolBranding/{docId} { allow read: if true; allow write: if false; }
+    match /academicReportSubjects/{docId} { allow read: if true; allow write: if false; }
+    match /academicReportTeachers/{docId} { allow read: if true; allow write: if false; }
+    match /academicTeacherBranding/{docId} { allow read: if true; allow write: if false; }
+    match /appBackups/{docId} { allow read: if false; allow write: if false; }
+    match /appBackupChunks/{docId} { allow read: if false; allow write: if false; }
   }
 }

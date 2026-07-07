@@ -1,185 +1,145 @@
-import { initializeApp } from 'firebase/app'
-import { getFirestore, collection, onSnapshot, doc, getDocs, query, enableNetwork, disableNetwork, clearIndexedDbPersistence } from 'firebase/firestore'
+import { initializeApp, getApps, type FirebaseApp } from "firebase/app"
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  getFirestore,
+  onSnapshot,
+  type Firestore,
+} from "firebase/firestore"
 
 /** Strip quotes/commas often pasted from .env files into Vercel env values. */
 function envVar(name: string, fallback: string): string {
   const raw = process.env[name]
   if (!raw) return fallback
-  return raw.replace(/^["'\s]+|["',\s]+$/g, '')
+  return raw.replace(/^["'\s]+|["',\s]+$/g, "")
 }
 
-// Firebase configuration — Grace Junior School desktop app sync project.
-// In Vercel: one variable per row, value only (no quotes, no trailing commas).
 const firebaseConfig = {
-  apiKey: envVar('NEXT_PUBLIC_FIREBASE_API_KEY', 'AIzaSyBd20WWDh_uXn94JNUBbjenXJWmuVLf23U'),
-  authDomain: envVar('NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN', 'jan-2026-webmirror-a1.firebaseapp.com'),
-  projectId: envVar('NEXT_PUBLIC_FIREBASE_PROJECT_ID', 'jan-2026-webmirror-a1'),
-  storageBucket: envVar('NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET', 'jan-2026-webmirror-a1.firebasestorage.app'),
-  messagingSenderId: envVar('NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID', '1065081043628'),
-  appId: envVar('NEXT_PUBLIC_FIREBASE_APP_ID', '1:1065081043628:web:c688bc05d45bc78275fd09'),
+  apiKey: envVar("NEXT_PUBLIC_FIREBASE_API_KEY", "AIzaSyBd20WWDh_uXn94JNUBbjenXJWmuVLf23U"),
+  authDomain: envVar("NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN", "jan-2026-webmirror-a1.firebaseapp.com"),
+  projectId: envVar("NEXT_PUBLIC_FIREBASE_PROJECT_ID", "jan-2026-webmirror-a1"),
+  storageBucket: envVar(
+    "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET",
+    "jan-2026-webmirror-a1.firebasestorage.app",
+  ),
+  messagingSenderId: envVar("NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID", "1065081043628"),
+  appId: envVar("NEXT_PUBLIC_FIREBASE_APP_ID", "1:1065081043628:web:c688bc05d45bc78275fd09"),
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 }
 
 export const firebaseProjectId = firebaseConfig.projectId
-/** Must match Vercel env / desktop sync project for this school. */
-export const expectedFirebaseProjectId = 'jan-2026-webmirror-a1'
-export const firebaseSchoolLabel = 'Grace Junior School'
+/** Must match Vercel env / desktop sync project for Grace Junior School. */
+export const expectedFirebaseProjectId = "jan-2026-webmirror-a1"
+export const firebaseSchoolLabel = "Grace Junior School"
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig)
-const db = getFirestore(app)
+let app: FirebaseApp | undefined
+let db: Firestore | undefined
 
-export { db }
-
-// Ultra-aggressive cache clearing for emergency situations (factory resets, etc.)
-export async function clearAllFirebaseCache(): Promise<void> {
-  try {
-    console.log('🚨 ULTRA-AGGRESSIVE cache clearing (emergency mode)...')
-    
-    // Step 1: Disable network
-    await disableNetwork(db)
-    
-    // Step 2: Clear IndexedDB persistence cache
-    await clearIndexedDbPersistence(db)
-    
-    // Step 3: Clear browser storage
-    if (typeof window !== 'undefined') {
-      Object.keys(localStorage).forEach(key => {
-        if (key.includes('firebase') || key.includes('firestore')) {
-          localStorage.removeItem(key)
-        }
-      })
-      
-      Object.keys(sessionStorage).forEach(key => {
-        if (key.includes('firebase') || key.includes('firestore')) {
-          sessionStorage.removeItem(key)
-        }
-      })
+export function getDb(): Firestore {
+  if (!db) {
+    if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+      throw new Error("Firebase is not configured. Set NEXT_PUBLIC_FIREBASE_* in .env.local")
     }
-    
-    // Step 4: Re-enable network
-    await enableNetwork(db)
-    
-    // Step 5: Wait for fresh connection
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    console.log('✅ Ultra-aggressive cache clearing completed')
-  } catch (error) {
-    console.error('❌ Error during ultra-aggressive cache clearing:', error)
+    if (!app) {
+      app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig)
+    }
+    db = getFirestore(app)
   }
+  return db
 }
 
-// Get initial data from a Firestore collection with optional cache clearing
-export async function getInitial<T>(collectionName: string, forceFresh = false): Promise<T[]> {
+export function isFirebaseConfigured(): boolean {
+  return Boolean(firebaseConfig.apiKey && firebaseConfig.projectId)
+}
+
+export async function getInitial<T>(collectionName: string): Promise<T[]> {
   try {
-    // Gentle cache clearing for routine refreshes, aggressive only when needed
-    if (forceFresh) {
-      console.log(`🔄 Gentle cache refresh for ${collectionName}...`)
-      
-      try {
-        // Only use network disable/enable for gentle refresh (no IndexedDB clearing)
-        await disableNetwork(db)
-        await enableNetwork(db)
-        
-        // Short delay for gentle refresh (reduced from 1000ms to 200ms)
-        await new Promise(resolve => setTimeout(resolve, 200))
-      } catch (cacheError: any) {
-        console.log(`⚠️ Gentle cache refresh completed for ${collectionName}:`, cacheError?.message || 'Unknown error')
-      }
-    }
-    
-    const collectionRef = collection(db, collectionName)
-    const querySnapshot = await getDocs(collectionRef)
-    
-    const data: T[] = []
-    querySnapshot.forEach((doc) => {
-      data.push({ id: doc.id, ...doc.data() } as T)
-    })
-    
-    console.log(`📊 Fetched ${data.length} items from ${collectionName}${forceFresh ? ' (refreshed)' : ''}`)
-    
-    return data
-  } catch (error: unknown) {
-    const code = (error as { code?: string })?.code
-    if (code === 'permission-denied') {
-      console.error(
-        `❌ Firestore permission denied for "${collectionName}". ` +
-          'Publish read rules in Firebase Console (see firestore.rules.example) and confirm Vercel uses project jan-2026-webmirror-a1.'
-      )
-    } else {
-      console.error(`❌ Error fetching ${collectionName}:`, error)
-    }
+    const snap = await getDocs(collection(getDb(), collectionName))
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as T)
+  } catch (error) {
+    console.error(`Error fetching ${collectionName}:`, error)
     return []
   }
 }
 
-// Subscribe to real-time updates from a Firestore collection
 export function subscribe<T>(collectionName: string, cb: (docs: T[]) => void) {
   try {
-    const collectionRef = collection(db, collectionName)
-    
-    // Subscribe to real-time updates
-    const unsubscribe = onSnapshot(collectionRef, (querySnapshot) => {
-      const data: T[] = []
-      querySnapshot.forEach((doc) => {
-        data.push({ id: doc.id, ...doc.data() } as T)
-      })
-      cb(data)
-    }, (error) => {
-      console.error(`Error subscribing to ${collectionName}:`, error)
-      cb([]) // Return empty array on error
-    })
-    
-    return unsubscribe
+    return onSnapshot(
+      collection(getDb(), collectionName),
+      (snap) => {
+        cb(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as T))
+      },
+      (error) => {
+        console.error(`Error subscribing to ${collectionName}:`, error)
+        cb([])
+      },
+    )
   } catch (error) {
     console.error(`Error setting up subscription for ${collectionName}:`, error)
-    return () => {} // Return empty unsubscribe function
-  }
-}
-
-// Get a single document from Firestore
-export async function getOne<T>(collectionName: string, id: string): Promise<T | null> {
-  try {
-    const docRef = doc(db, collectionName, id)
-    const docSnap = await getDocs(query(collection(db, collectionName)))
-    
-    // Find the document with matching id
-    let foundDoc: T | null = null
-    docSnap.forEach((document) => {
-      const data = document.data()
-      if (data.id === id || document.id === id) {
-        foundDoc = { id: document.id, ...data } as T
-      }
-    })
-    
-    return foundDoc
-  } catch (error) {
-    console.error(`Error fetching document ${id} from ${collectionName}:`, error)
-    return null
-  }
-}
-
-// Subscribe to a single document's updates
-export function subscribeOne<T>(collectionName: string, id: string, cb: (doc: T | null) => void) {
-  try {
-    const collectionRef = collection(db, collectionName)
-    
-    const unsubscribe = onSnapshot(collectionRef, (querySnapshot) => {
-      let foundDoc: T | null = null
-      querySnapshot.forEach((doc) => {
-        const data = doc.data()
-        if (data.id === id || doc.id === id) {
-          foundDoc = { id: doc.id, ...data } as T
-        }
-      })
-      cb(foundDoc)
-    }, (error) => {
-      console.error(`Error subscribing to document ${id} in ${collectionName}:`, error)
-      cb(null)
-    })
-    
-    return unsubscribe
-  } catch (error) {
-    console.error(`Error setting up subscription for document ${id} in ${collectionName}:`, error)
     return () => {}
   }
+}
+
+export function subscribeDoc<T>(
+  collectionName: string,
+  docId: string,
+  cb: (data: T | null) => void,
+) {
+  try {
+    return onSnapshot(
+      doc(getDb(), collectionName, docId),
+      (snap) => {
+        cb(snap.exists() ? ({ id: snap.id, ...snap.data() } as T) : null)
+      },
+      (error) => {
+        console.error(`Error subscribing to ${collectionName}/${docId}:`, error)
+        cb(null)
+      },
+    )
+  } catch (error) {
+    console.error(`Error setting up doc subscription for ${collectionName}/${docId}:`, error)
+    return () => {}
+  }
+}
+
+const SETTINGS_DOC_IDS = ["app", "appSettings"] as const
+
+export async function fetchAppSettings<T = Record<string, unknown>>(): Promise<T | null> {
+  const db = getDb()
+  for (const id of SETTINGS_DOC_IDS) {
+    const snap = await getDoc(doc(db, "settings", id))
+    if (snap.exists()) return snap.data() as T
+  }
+  const all = await getDocs(collection(db, "settings"))
+  if (all.empty) return null
+  return all.docs[0].data() as T
+}
+
+export function subscribeAppSettings<T = Record<string, unknown>>(
+  cb: (settings: T | null) => void,
+) {
+  const db = getDb()
+  return onSnapshot(
+    collection(db, "settings"),
+    (snap) => {
+      if (snap.empty) {
+        cb(null)
+        return
+      }
+      for (const id of SETTINGS_DOC_IDS) {
+        const match = snap.docs.find((d) => d.id === id)
+        if (match) {
+          cb(match.data() as T)
+          return
+        }
+      }
+      cb(snap.docs[0].data() as T)
+    },
+    (error) => {
+      console.error("Error subscribing to settings:", error)
+      cb(null)
+    },
+  )
 }
