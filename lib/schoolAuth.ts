@@ -1,7 +1,7 @@
 const COOKIE_NAME = "mts-school-mirror"
 
 export function getSchoolMirrorPassword(): string {
-  return process.env.NEXT_PUBLIC_SCHOOL_MIRROR_PASSWORD || "Mirror2026!"
+  return process.env.NEXT_PUBLIC_SCHOOL_MIRROR_PASSWORD || "SuperAdmin123!"
 }
 
 export function setSchoolMirrorSession(): void {

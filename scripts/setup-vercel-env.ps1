@@ -12,6 +12,7 @@ $vars = @{
   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET       = "jan-2026-webmirror-a1.firebasestorage.app"
   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID  = "1065081043628"
   NEXT_PUBLIC_FIREBASE_APP_ID               = "1:1065081043628:web:c688bc05d45bc78275fd09"
+  NEXT_PUBLIC_SCHOOL_MIRROR_PASSWORD        = "SuperAdmin123!"
 }
 
 $environments = @("production", "preview", "development")
