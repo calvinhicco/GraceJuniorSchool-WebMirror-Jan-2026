@@ -1,13 +1,15 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { Loader2, Users } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
+import { DollarSign, Loader2, Users } from "lucide-react"
 import { getInitial, subscribe, subscribeAppSettings } from "@/lib/realtime"
 import { formatMoney } from "@/lib/calculations"
-import type { AppSettings } from "@/types/school"
+import { calculateMonthlyTuitionCollections } from "@/lib/dashboardMetrics"
+import { getMonthName } from "@/lib/dateUtils"
+import type { AppSettings, Student } from "@/types/school"
 
 export function DashboardTotals() {
-  const [totalStudents, setTotalStudents] = useState(0)
+  const [students, setStudents] = useState<Student[]>([])
   const [totalExpenses, setTotalExpenses] = useState(0)
   const [totalExtraBilling, setTotalExtraBilling] = useState(0)
   const [totalOutstanding, setTotalOutstanding] = useState(0)
@@ -16,14 +18,14 @@ export function DashboardTotals() {
 
   useEffect(() => {
     const load = async () => {
-      const [students, expenses, extraBilling, outstanding] = await Promise.all([
-        getInitial<{ id: string }>("students"),
+      const [studentDocs, expenses, extraBilling, outstanding] = await Promise.all([
+        getInitial<Student>("students"),
         getInitial<{ amount: number; isReversed?: boolean; reversed?: boolean }>("expenses"),
         getInitial<{ amount: number }>("extraBilling"),
         getInitial<{ outstandingAmount: number }>("outstandingStudents"),
       ])
 
-      setTotalStudents(students.length)
+      setStudents(studentDocs)
       setTotalExpenses(
         expenses.reduce((sum, e) => {
           if (e.isReversed || e.reversed) return sum
@@ -42,7 +44,7 @@ export function DashboardTotals() {
     load()
 
     const unsubs = [
-      subscribe<{ id: string }>("students", (docs) => setTotalStudents(docs.length)),
+      subscribe<Student>("students", setStudents),
       subscribe<{ amount: number; isReversed?: boolean; reversed?: boolean }>("expenses", (docs) => {
         setTotalExpenses(
           docs.reduce((sum, e) => {
@@ -67,7 +69,12 @@ export function DashboardTotals() {
     return () => unsubs.forEach((u) => u())
   }, [])
 
-  const currency = settings?.currency || "$"
+  const currency = settings?.currency || "USD"
+  const currentMonthTuition = useMemo(
+    () => calculateMonthlyTuitionCollections(students),
+    [students],
+  )
+  const currentMonthLabel = getMonthName(new Date().getMonth() + 1)
 
   if (loading) {
     return (
@@ -80,36 +87,51 @@ export function DashboardTotals() {
   const cards = [
     {
       label: "Total Students",
-      value: String(totalStudents),
+      value: String(students.length),
+      sub: null as string | null,
       className: "bg-brand-gradient text-white",
       icon: Users,
     },
     {
+      label: "Tuition Fees Collected (Current Month Only)",
+      value: formatMoney(currentMonthTuition, currency),
+      sub: currentMonthLabel,
+      className: "bg-gradient-to-br from-sky-500 to-sky-600 text-white",
+      icon: DollarSign,
+    },
+    {
       label: "Total Expenses",
       value: formatMoney(totalExpenses, currency),
+      sub: null,
       className: "bg-gradient-to-br from-rose-500 to-rose-600 text-white",
+      icon: null,
     },
     {
       label: "Extra Billing",
       value: formatMoney(totalExtraBilling, currency),
+      sub: null,
       className: "bg-gradient-to-br from-violet-400 to-violet-500 text-white",
+      icon: null,
     },
     {
       label: "Outstanding",
       value: formatMoney(totalOutstanding, currency),
+      sub: null,
       className: "bg-gradient-to-br from-amber-500 to-amber-600 text-white",
+      icon: null,
     },
   ]
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {cards.map(({ label, value, className, icon: Icon }) => (
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      {cards.map(({ label, value, sub, className, icon: Icon }) => (
         <div key={label} className={`rounded-xl p-5 shadow-lg ${className}`}>
           <div className="mb-2 flex items-center justify-between text-sm font-medium opacity-90">
-            {label}
-            {Icon && <Icon className="h-4 w-4 opacity-80" />}
+            <span className="pr-2 leading-snug">{label}</span>
+            {Icon && <Icon className="h-4 w-4 shrink-0 opacity-80" />}
           </div>
           <div className="text-2xl font-bold">{value}</div>
+          {sub && <p className="mt-1 text-xs opacity-80">{sub}</p>}
         </div>
       ))}
     </div>

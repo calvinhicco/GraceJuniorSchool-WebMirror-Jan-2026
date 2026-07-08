@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { clearSchoolMirrorSession } from "@/lib/schoolAuth"
-import { Home, Users, Receipt, Package, AlertTriangle, LogOut } from "lucide-react"
+import { Home, Users, Receipt, Package, AlertTriangle, LogOut, Wallet } from "lucide-react"
 
 const links = [
   { href: "/school", label: "Dashboard", icon: Home, exact: true },
@@ -11,6 +11,7 @@ const links = [
   { href: "/school/expenses", label: "Expenses", icon: Receipt },
   { href: "/school/extrabilling", label: "Extra Billing", icon: Package },
   { href: "/school/outstanding", label: "Outstanding", icon: AlertTriangle },
+  { href: "/school/balance-sheet", label: "Balance Sheet", icon: Wallet },
 ]
 
 export function SchoolNav() {
